@@ -13,13 +13,20 @@ public class Logic {
         checkIfArrayIsCorrect(matrix);
         checkIfArrayIsSquare(matrix);
 
+        if (solveDeterminant(matrix) == 0){
+            BufferedWriter writer = new BufferedWriter(new FileWriter(fileNameOutput));
+            writer.write("Определитель равен 0, обратной матрицы не существует \n");
+            writer.flush();
+            return;
+        }
+
         double[][] inverseMatrix = solveMatrix(matrix);
         double[][] check = multiplyMatrixMatrix(matrix, inverseMatrix);
         writeIntoFile(matrix, inverseMatrix, check, fileNameOutput);
     }
 
     public static double[][] solveMatrix(int[][] mat){
-        return multiplyMatrixNumber(getTransposedMatrix(getTempMatrix(mat)), (double) 1/solveDeterminant(mat));
+        return multiplyMatrixNumber(getTransposedMatrix(getTempMatrix(mat)), 1.0 / solveDeterminant(mat));
     }
 
     public static int solveDeterminant(int[][] det){
@@ -91,16 +98,6 @@ public class Logic {
         return minor;
     }
 
-    public static double[][] multiplyMatrixNumber(int[][] mat, int num){
-        double[][] newMat = new double[mat.length][mat.length];
-        for (int i = 0; i< mat.length; i++){
-            for (int j = 0; j < mat.length; j++){
-                newMat[i][j] = mat[i][j] * num;
-            }
-        }
-
-        return newMat;
-    }
 
     public static double[][] multiplyMatrixNumber(int[][] mat, double num){
         double[][] newMat = new double[mat.length][mat.length];
@@ -118,15 +115,15 @@ public class Logic {
 
         for (int i = 0; i < res.length; i++){
             for (int j = 0; j < res.length; j++){
-                res[i][j] = multiplyCell(mat1, mat2, i, j);
+                res[i][j] = Math.round(multiplyCell(mat1, mat2, i, j));
             }
         }
 
         return res;
     }
 
-    public static int multiplyCell(int[][] mat1, double[][] mat2, int row, int col){
-        int cell = 0;
+    public static double multiplyCell(int[][] mat1, double[][] mat2, int row, int col){
+        double cell = 0;
         for (int i = 0; i < mat2.length; i++){
             cell += mat1[row][i] * mat2[i][col];
         }
@@ -135,27 +132,28 @@ public class Logic {
     }
 
     public static void writeIntoFile(int[][] orig, double[][] solved, double[][] check, String fileName) throws Exception{
-        printMatrix(orig, fileName);
-        printMatrix(solved, fileName);
-        printMatrix(check, fileName);
+        BufferedWriter writer = new BufferedWriter(new FileWriter(fileName));
+        printMatrix(orig, writer);
+        printMatrix(solved, writer);
+        printMatrix(check, writer);
     }
 
-    public static void printMatrix(int[][] mat, String fileName) throws Exception{
-        BufferedWriter writer = new BufferedWriter(new FileWriter(fileName));
+    public static void printMatrix(int[][] mat, BufferedWriter writer) throws Exception{
         for (int[] line : mat){
-            writer.write(Arrays.toString(line) + "\n");
+            writer.write(Arrays.toString(line));
+            writer.write("\n");
         }
-        writer.write("\n");
+        writer.write(" \n");
         writer.flush();
     }
 
 
-    public static void printMatrix(double[][] mat, String fileName) throws Exception{
-        BufferedWriter writer = new BufferedWriter(new FileWriter(fileName));
+    public static void printMatrix(double[][] mat, BufferedWriter writer) throws Exception{
         for (double[] line : mat){
             writer.write(Arrays.toString(line));
+            writer.write("\n");
         }
-        writer.write(" ");
+        writer.write(" \n");
         writer.flush();
     }
 
